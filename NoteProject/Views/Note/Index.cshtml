@@ -1,0 +1,115 @@
+﻿@{
+
+    
+    @using noteProject.Domain.Enum
+    ViewData["Title"] = "Home Page";
+}
+<h4 class=" mb-3 text-muted">Создание заметки</h4>
+<form id="createNoteForm">
+    <div>
+        <label class="form-label">Название</label>
+        <input name="name" type="text" class="form-control" />
+
+    </div>
+    <div>
+        <label class="form-label">Тип заметки</label>
+        <select name="priority" class="form-select mb-3" asp-items="Html.GetEnumSelectList<Priority>()"></select>
+
+    </div>
+    
+
+    <div class=" mb-3">
+        <label class="form-label">Описание </label>
+        <textarea name="description" type="text" class="form-control" rows="3"></textarea>
+    </div>
+    <button id="createNote" class="btn  btn-primary">Sozdat </button>
+</form>
+<table class="table table-dark table-hover" id="noteTableId">
+    <thead> 
+    <tr>
+        <th>Название</th>
+            <th>Тип заметки</th>
+        <th>Готовность</th>
+        <th>Дата создания</th>
+        
+    </tr>
+    </thead>
+    <tbody></tbody>
+    </table>
+
+
+
+
+
+@section Scripts
+ {
+     <script type="text/javascript" src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let dataTable = $('#noteTableId').DataTable({
+            info: true,
+            serviceSide: true,
+            searching: false,
+            paging: false,
+            sorting: false,
+            ajax: {
+                url: "@Url.Action("NoteHandler")",
+                method: 'POST',
+                data: null
+            },
+            columns: [
+                { data: 'name' },
+                { data: 'priority' },
+                { data: 'description' },
+                
+                { data: 'created' },
+            
+            ],
+            createdRow: function (nRow, data) { 
+                for (var i = 0; i < dataTable.columns().header().length - 1; i++) { 
+                    $('td', nRow).eq(i).css('cursor', 'pointer');
+
+                    $('td', nRow).eq(i).on('click', null);
+
+                }
+                $('td button', nRow).eq(i).on('click', null);
+            }
+
+
+
+        });
+
+        $('#createNote').on('click', function (e) {
+            alert('a');
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                   url: '@Url.Action("Create", "Note")',
+                data: $('#createNoteForm').serialize(),
+                success: function (responce) {
+                    swal.fire({
+                        title: 'informatsiya',
+                        text: responce.description,
+                        icon: 'success',
+                        confirmButtonText: 'Okey'
+
+                    })
+
+
+                },
+                error: function (responce) {
+                       swal.fire({
+                           title: 'informatsiya',
+                           text: responce.responseJSON.description,
+                           icon: 'error',
+                           confirmButtonText: 'Okey'
+
+                       })
+                }
+
+            })
+
+        });
+
+    </script>
+} 
